@@ -7,8 +7,13 @@ void initPixy() {
 	pixy.init();
 }
 
-void getBlocks() {
+int getBlocks() {
 	pixy.ccc.getBlocks();
+	if (pixy.ccc.numBlocks) {
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 int xDiff() {

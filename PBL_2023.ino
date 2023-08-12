@@ -7,10 +7,11 @@
 
 #include "utils.h"
 #include "gyro.h"
+#include "pixy.h"
 
 //PID
 double Setpoint, Input, Output;
-double Kp=2,Ki=0.2, Kd=0.1;
+double Kp=2,Ki=0.1, Kd=0.2;
 //double Kp=0.8,Ki=0.02, Kd=0.3;
 PID pid(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
@@ -30,9 +31,11 @@ void turnBack();
 
 void setup() {
 	Serial.begin(115200);
+	
 	car.setSpeed(0,0);
 	sonar.init();
 	pinMode(LED, OUTPUT);
+	initPixy();
 	setupGyro();
 	Setpoint = 0;
 	pid.SetMode(AUTOMATIC);
@@ -76,10 +79,10 @@ void turn(int angle) {
 void sonarFunc() {
 	delay(50);
 	int distance = sonar.getcm();
-	if(distance <= 35) {
+	if(distance <= 35 && distance > 1) {
+		Serial.println();
 		Serial.println(distance);
-		Serial.println("turning back");
-		Serial.println("sonar");
+		Serial.println("turning");
 		digitalWrite(LED, HIGH);
 		turn(90);
 		//turnBack();
@@ -119,5 +122,7 @@ void turnBack() {
 
 void loop() {
 	//debugYaw();
-	sonarFunc();
+	//sonarFunc();
+	if (getBlocks())
+		Serial.println(xDiff());
 }
