@@ -8,19 +8,16 @@
 #include "utils.h"
 #include "gyro.h"
 #include "pixy.h"
+#include "stepMotor.h"
 
 //PID
 double Setpoint, Input, Output;
-double Kp=2,Ki=0.1, Kd=0.2;
-//double Kp=0.8,Ki=0.02, Kd=0.3;
 PID pid(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 Motor leftMotor(ENA, IN1, IN2);
 Motor rightMotor(ENB, IN3, IN4);
 MotorPair car(rightMotor, leftMotor);
 Sonar sonar(TRIG, ECHO);
-
-int yawoffset = 0;
 
 data d;
 
@@ -39,7 +36,7 @@ void setup() {
 	setupGyro();
 	Setpoint = 0;
 	pid.SetMode(AUTOMATIC);
-	pid.SetOutputLimits(-50, 50);
+	pid.SetOutputLimits(-25, 25);
 }
 //void loop() {
 	//Input = getYaw();
@@ -121,8 +118,17 @@ void turnBack() {
 }
 
 void loop() {
-	//debugYaw();
+	debugYaw();
 	//sonarFunc();
-	if (getBlocks())
-		Serial.println(xDiff());
+	
+	if (getBlocks()) {
+		Setpoint = 0;
+		Input = xDiff(); 
+		pid.Compute();
+		car.arcadeDrive(25, Output);
+	} else {
+		car.setSpeed(0,0);
+		Input = 0;
+		pid.Compute();
+	}
 }

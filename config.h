@@ -1,6 +1,15 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define S1 4
+#define S2 5
+#define S3 6
+#define S4 7
+
+#define Kp 1.5
+#define Ki 0.001
+#define Kd 1.1
+
 #define ENA 13
 #define ENB 8
 #define IN1 12
