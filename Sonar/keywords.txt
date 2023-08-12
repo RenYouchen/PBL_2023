@@ -1,0 +1,7 @@
+# datatype and class name
+Sonar	KEYWORD1
+
+# function and method name
+init	KEYWORD2
+getRaw	KEYWORD2
+getcm	KEYWORD2
