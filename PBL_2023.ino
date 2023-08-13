@@ -24,7 +24,7 @@ data d;
 void turn(int angle);
 void sonarFunc();
 void debugYaw();
-void turnBack();
+void turnToRedball();
 
 void setup() {
 	Serial.begin(115200);
@@ -38,13 +38,25 @@ void setup() {
 	pid.SetMode(AUTOMATIC);
 	pid.SetOutputLimits(-25, 25);
 }
-//void loop() {
-	//Input = getYaw();
-	//pid.Compute();
-	//car.arcadeDrive(50, -Output);
-	//car.setSpeed(100,100);
+
+void loop() {
+	debugYaw();
 	//sonarFunc();
-//}
+	turnToRedball();	
+}
+
+void turnToRedball() {
+	if (getBlocks()) {
+		Setpoint = 0;
+		Input = xDiff(); 
+		pid.Compute();
+		car.arcadeDrive(25, Output);
+	} else {
+		car.setSpeed(0,0);
+		Input = 0;
+		pid.Compute();
+	}
+}
 
 bool turned = false;
 
@@ -110,25 +122,3 @@ void debugYaw() {
 	Serial.println();
 }
 
-void turnBack() {
-	Serial.println("turning back");
-	turn(90);
-	delay(10);
-	turn(90);
-}
-
-void loop() {
-	debugYaw();
-	//sonarFunc();
-	
-	if (getBlocks()) {
-		Setpoint = 0;
-		Input = xDiff(); 
-		pid.Compute();
-		car.arcadeDrive(25, Output);
-	} else {
-		car.setSpeed(0,0);
-		Input = 0;
-		pid.Compute();
-	}
-}
