@@ -6,14 +6,14 @@
 #define S3 6
 #define S4 7
 
-#define SW 
+#define SW 3
 
 #define Kp 1.5
 #define Ki 0.001
 #define Kd 1.1
 
 #define tKp 1
-#define tKi 0.01
+#define tKi 0.05
 #define tKd 0
 
 #define gKp 1.5
@@ -33,7 +33,7 @@
 #define ECHO 47
 #define MAX_DISTANCE 200
 
-#define SERVO_PIN 7
+#define SERVO_PIN 4
 
 #define LED 31
 

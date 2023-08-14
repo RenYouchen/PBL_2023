@@ -38,9 +38,9 @@ void turnToRedball();
 void setup() {
 	Serial.begin(115200);
 	car.setSpeed(0,0);
-	sonar.init();
+	//sonar.init();
 	pinMode(LED, OUTPUT);
-	//pinMode(SW,INPUT_PULLUP);
+	pinMode(SW,INPUT_PULLUP);
 	initPixy();
 	setupGyro();
 	Setpoint = 0;
@@ -50,8 +50,8 @@ void setup() {
 	turnPid.SetOutputLimits(-25, 25);
 	goPid.SetMode(AUTOMATIC);
 	goPid.SetOutputLimits(-25, 25);
-	servo.attach(SERVO_PIN);
 	//setup servo
+	servo.attach(SERVO_PIN);
 	servo.write(0);
 	delay(1000);
 	//led will be high when ready
@@ -60,13 +60,13 @@ void setup() {
 
 void loop() {
 	//catchBall();
-	debugYaw();
-	Setpoint = 0;
-	Input = getYaw();
-	pid.Compute();
-	car.arcadeDrive(25, -Output);
+	//debugYaw();
+	//Setpoint = 0;
+	//Input = getYaw();
+	//pid.Compute();
+	//car.arcadeDrive(25, Output);
 	//Serial.println(getYaw());
-	//turnToRedball();	
+	turnToRedball();	
 }
 
 void catchBall() {
@@ -74,7 +74,7 @@ void catchBall() {
 	int dtime = 3000;
 	servo.write(angle);
 	delay(dtime);
-	servo.write(0);
+	servo.write(70);
 	delay(dtime);
 }
 
@@ -84,7 +84,7 @@ int count = 0;
 
 void turnToRedball() {
 	if (getBlocks() && ballNotInRangeX) {
-		Serial.println("found");
+		Serial.println("adjust x");
 		debugYaw();
 		goStraight = 0;
 		Setpoint = 0;
@@ -102,6 +102,7 @@ void turnToRedball() {
 		car.arcadeDrive(0, Output);
 	} else if (!ballNotInRangeX) { 
 		Serial.println("gotoball");
+		Serial.println("adjust y");
 		if (!goStraight) {
 			car.setSpeed(0,0);
 			setupGyro();
@@ -114,13 +115,17 @@ void turnToRedball() {
 				Serial.println("catch");
 				car.setSpeed(0,0);
 				count = 0;
-				catchBall();
-				while (1) {
-					digitalWrite(LED, HIGH);
-					delay(1000);
-					digitalWrite(LED, LOW);
-					delay(1000);
+				if (!(xDiff() >= -10 && xDiff() <= 10)) {
+					ballNotInRangeX = 1;
+				} else {
+					catchBall();
+					while (1) {
+						digitalWrite(LED, HIGH);
+						delay(1000);
+						digitalWrite(LED, LOW);
+						delay(1000);
 
+					}
 				}
 			}
 		}
@@ -128,19 +133,16 @@ void turnToRedball() {
 		ySetpoint = 0;
 		yInput = yDiff();
 		goPid.Compute();
-		
-		Serial.print("yInput: ");
-		Serial.println(yInput);
-		Serial.print("yOutput: ");
-		Serial.println(yOutput);
-		Serial.print("ySetpoint: ");
-		Serial.println(ySetpoint);
+
 		Setpoint = 0;
 		Input = getYaw();
 		pid.Compute();
-		car.arcadeDrive(yOutput, -Output);
+		
+		debugYaw();
+
+		car.arcadeDrive(yOutput, Output);
 	} else {
-	ballNotInRangeX = 1;
+		ballNotInRangeX = 1;
 		Serial.println("not found");
 		if (!goStraight) {
 			car.setSpeed(0,0);
@@ -172,8 +174,10 @@ void turn(int angle) {
 		car.arcadeDrive(0, -Output);
 		if (Input >= angle - 5 && Input <= angle + 5) {
 			count++;
+		} else {
+			count = 0;
 		}
-		if (count > 50) {
+		if (count > 30) {
 			done = true;
 			Serial.println("done");
 			car.setSpeed(0,0);
@@ -186,25 +190,9 @@ void sonarFunc() {
 	delay(50);
 	int distance = sonar.getcm();
 	if(distance <= 35 && distance > 1) {
-		Serial.println();
-		Serial.println(distance);
-		Serial.println("turning");
-		digitalWrite(LED, HIGH);
-		turn(90);
-		//turnBack();
+
 	} else {
-		Serial.print("forward :");
-		digitalWrite(LED, LOW);
-		if (turned) {
-			car.setSpeed(0,0);
-			setupGyro();
-			turned = false;
-		}
-		
-		Setpoint = 0;
-		Input = getYaw();
-		pid.Compute();
-		car.arcadeDrive(50, -Output);
+
 	}
 }
 
@@ -214,8 +202,12 @@ void debugYaw() {
 	Serial.print(Output);
 	Serial.print(" ");
 	Serial.print(Input);
+	Serial.print("    ");
+	Serial.print(ySetpoint);
 	Serial.print(" ");
-	//Serial.print(sonar.getcm());
+	Serial.print(yOutput);
+	Serial.print(" ");
+	Serial.print(yInput);
 	Serial.println();
 }
 

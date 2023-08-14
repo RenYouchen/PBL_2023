@@ -19,13 +19,13 @@ int getBlocks() {
 int xDiff() {
 	getBlocks();
 	int x = pixy.ccc.blocks[0].m_x;
-	return x - 160;
+	return x - 158;
 }
 
 int yDiff() {
 	getBlocks();
 	int y = pixy.ccc.blocks[0].m_y;
-	return y - 190;
+	return y - 185;
 }
 
 int averageX() {
