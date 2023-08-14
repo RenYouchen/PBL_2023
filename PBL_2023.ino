@@ -40,7 +40,7 @@ void setup() {
 	car.setSpeed(0,0);
 	sonar.init();
 	pinMode(LED, OUTPUT);
-	pinMode(SW,INPUT_PULLUP);
+	//pinMode(SW,INPUT_PULLUP);
 	initPixy();
 	setupGyro();
 	Setpoint = 0;
@@ -60,8 +60,13 @@ void setup() {
 
 void loop() {
 	//catchBall();
-	//debugYaw();
-	turnToRedball();	
+	debugYaw();
+	Setpoint = 0;
+	Input = getYaw();
+	pid.Compute();
+	car.arcadeDrive(25, -Output);
+	//Serial.println(getYaw());
+	//turnToRedball();	
 }
 
 void catchBall() {
@@ -76,6 +81,7 @@ void catchBall() {
 int goStraight = 0;
 int ballNotInRangeX = 1;
 int count = 0;
+
 void turnToRedball() {
 	if (getBlocks() && ballNotInRangeX) {
 		Serial.println("found");
