@@ -18,14 +18,17 @@ PID pid(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 PID turnPid(&Input, &Output, &Setpoint, tKp, tKi, tKd, DIRECT);
 PID goPid(&yInput, &yOutput, &ySetpoint, gKp, gKi, gKd, DIRECT); 
 
+//obj define
 Motor leftMotor(ENA, IN1, IN2);
 Motor rightMotor(ENB, IN3, IN4);
 MotorPair car(rightMotor, leftMotor);
 Sonar sonar(TRIG, ECHO);
 Servo servo;
 
+//speed (maybe useless)
 data di;
 
+//function define
 void catchBall();
 void turn(int angle);
 void sonarFunc();
@@ -37,6 +40,7 @@ void setup() {
 	car.setSpeed(0,0);
 	sonar.init();
 	pinMode(LED, OUTPUT);
+	pinMode(SW,INPUT_PULLUP);
 	initPixy();
 	setupGyro();
 	Setpoint = 0;
@@ -50,6 +54,7 @@ void setup() {
 	//setup servo
 	servo.write(0);
 	delay(1000);
+	//led will be high when ready
 	digitalWrite(LED, HIGH);
 }
 
@@ -70,7 +75,7 @@ void catchBall() {
 
 int goStraight = 0;
 int ballNotInRangeX = 1;
-	int count = 0;
+int count = 0;
 void turnToRedball() {
 	if (getBlocks() && ballNotInRangeX) {
 		Serial.println("found");
@@ -87,8 +92,6 @@ void turnToRedball() {
 		} else {
 			count = 0;
 		}
-
-
 		turnPid.Compute();
 		car.arcadeDrive(0, Output);
 	} else if (!ballNotInRangeX) { 

@@ -6,6 +6,8 @@
 #define S3 6
 #define S4 7
 
+#define SW 
+
 #define Kp 1.5
 #define Ki 0.001
 #define Kd 1.1
