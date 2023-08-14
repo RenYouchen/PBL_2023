@@ -22,6 +22,12 @@ int xDiff() {
 	return x - 160;
 }
 
+int yDiff() {
+	getBlocks();
+	int y = pixy.ccc.blocks[0].m_y;
+	return y - 190;
+}
+
 int averageX() {
 	int sum = 0;
 	for (int i = 0; i < 2; i++) {
