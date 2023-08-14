@@ -6,7 +6,8 @@
 #define S3 6
 #define S4 7
 
-#define SW 3
+#define SW1 36
+#define SW2 37
 
 #define Kp 1.5
 #define Ki 0.001

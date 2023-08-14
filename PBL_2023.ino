@@ -34,13 +34,15 @@ void turn(int angle);
 void sonarFunc();
 void debugYaw();
 void turnToRedball();
+int hitTheWall();
 
 void setup() {
 	Serial.begin(115200);
 	car.setSpeed(0,0);
-	//sonar.init();
+	sonar.init();
 	pinMode(LED, OUTPUT);
-	pinMode(SW,INPUT_PULLUP);
+	pinMode(SW1,INPUT_PULLUP);
+	pinMode(SW2,INPUT_PULLUP);
 	initPixy();
 	setupGyro();
 	Setpoint = 0;
@@ -66,6 +68,7 @@ void loop() {
 	//pid.Compute();
 	//car.arcadeDrive(25, Output);
 	//Serial.println(getYaw());
+	//Serial.println(sonar.getcm());
 	turnToRedball();	
 }
 
@@ -74,8 +77,13 @@ void catchBall() {
 	int dtime = 3000;
 	servo.write(angle);
 	delay(dtime);
-	servo.write(70);
+	servo.write(50);
 	delay(dtime);
+}
+
+void throwBall() {
+	servo.write(0);
+	delay(3000);
 }
 
 int goStraight = 0;
@@ -119,12 +127,13 @@ void turnToRedball() {
 					ballNotInRangeX = 1;
 				} else {
 					catchBall();
-					while (1) {
-						digitalWrite(LED, HIGH);
-						delay(1000);
-						digitalWrite(LED, LOW);
-						delay(1000);
-
+					while (true) {
+						car.setSpeed(-25,-25);
+						if (hitTheWall()) {
+							car.setSpeed(0,0);
+							throwBall();
+							break;
+						}
 					}
 				}
 			}
@@ -149,6 +158,10 @@ void turnToRedball() {
 			setupGyro();
 			goStraight = 1;
 		}
+		while (sonar.getcm() < 20) {
+			car.arcadeDrive(0, -25);
+			goStraight = 0;
+		}
 		Setpoint = 0;
 		Input = getYaw();
 		pid.Compute();
@@ -165,13 +178,13 @@ void turn(int angle) {
 	car.setSpeed(0,0);
 	setupGyro();
 	while (!done) {
-		delay(10);
 		Setpoint = angle;
 		Input = getYaw();
 		//Input = angleDiff(Setpoint, getYaw()); 
+		//turnPid.Compute();
 		pid.Compute();
 		debugYaw();
-		car.arcadeDrive(0, -Output);
+		car.arcadeDrive(0, Output);
 		if (Input >= angle - 5 && Input <= angle + 5) {
 			count++;
 		} else {
@@ -182,6 +195,7 @@ void turn(int angle) {
 			Serial.println("done");
 			car.setSpeed(0,0);
 			turned = true;
+			break;
 		}
 	}
 }
@@ -190,7 +204,7 @@ void sonarFunc() {
 	delay(50);
 	int distance = sonar.getcm();
 	if(distance <= 35 && distance > 1) {
-
+		
 	} else {
 
 	}
@@ -211,3 +225,10 @@ void debugYaw() {
 	Serial.println();
 }
 
+int hitTheWall() {
+	if ((digitalRead(SW1) == LOW) || (digitalRead(SW2) == LOW)) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
