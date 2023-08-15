@@ -31,11 +31,11 @@ void setupGyro() {
   mpu.initialize();
 
   // verify connection
-  Serial.println("Testing device connections...");
-  Serial.println(mpu.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+  //Serial.println("Testing device connections...");
+  //Serial.println(mpu.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
 
   // load and configure the DMP
-  Serial.println("Initializing DMP...");
+  //Serial.println("Initializing DMP...");
   uint8_t devStatus = mpu.dmpInitialize();
 
   // supply your own gyro offsets here, scaled for min sensitivity
@@ -48,19 +48,18 @@ void setupGyro() {
   if (devStatus == 0) {
 	mpu.CalibrateAccel(6);
 	mpu.CalibrateGyro(6);
-	mpu.PrintActiveOffsets();
 
 	// turn on the DMP, now that it's ready
-	Serial.println("Enabling DMP...");
+	//Serial.println("Enabling DMP...");
 	mpu.setDMPEnabled(true);
 
 	// enable Arduino interrupt detection
-	Serial.println("Enabling interrupt detection (Arduino external interrupt 2)...");
+	//Serial.println("Enabling interrupt detection (Arduino external interrupt 2)...");
 	attachInterrupt(INTERRUPT_PIN, dmpDataReady, RISING);
 	mpuIntStatus = mpu.getIntStatus();
 
 	// set our DMP Ready flag so the main loop() function knows it's okay to use it
-	Serial.println("DMP ready! Waiting for first interrupt...");
+	//Serial.println("DMP ready! Waiting for first interrupt...");
 	dmpReady = true;
 
 	// get expected DMP packet size for later comparison
@@ -84,4 +83,17 @@ int getYaw() {
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 		return ypr[0] * 180/M_PI;
 	}
+}
+int getPitch() {
+	if (!dmpReady) return 0;
+	if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
+		mpu.dmpGetQuaternion(&q, fifoBuffer);
+		mpu.dmpGetGravity(&gravity, &q);
+		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+		int a = ypr[1] * 180/M_PI;
+		if (a < 0)
+			return -a;
+		else
+			return a;	
+}
 }
