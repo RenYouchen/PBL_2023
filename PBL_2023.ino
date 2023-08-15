@@ -32,6 +32,7 @@ data di;
 void catchBall();
 void turn(int angle);
 void sonarFunc();
+int sonarDistance();
 void debugYaw();
 void turnToRedball();
 int hitTheWall();
@@ -68,13 +69,14 @@ void loop() {
 	//pid.Compute();
 	//car.arcadeDrive(25, Output);
 	//Serial.println(getYaw());
-	//Serial.println(sonar.getcm());
+	//Serial.println(sonarDistance());
 	turnToRedball();	
 }
 
 void catchBall() {
 	int angle = 130;
 	int dtime = 3000;
+	//will do for 6s
 	servo.write(angle);
 	delay(dtime);
 	servo.write(50);
@@ -91,7 +93,7 @@ int ballNotInRangeX = 1;
 int count = 0;
 
 void turnToRedball() {
-	if (getBlocks() && ballNotInRangeX) {
+	if (getBlocks() && ballNotInRangeX && 0) {
 		Serial.println("adjust x");
 		debugYaw();
 		goStraight = 0;
@@ -127,7 +129,11 @@ void turnToRedball() {
 					ballNotInRangeX = 1;
 				} else {
 					catchBall();
+					delay(1000);
 					while (true) {
+						while (1) {
+							
+						}
 						car.setSpeed(-25,-25);
 						if (hitTheWall()) {
 							car.setSpeed(0,0);
@@ -158,7 +164,8 @@ void turnToRedball() {
 			setupGyro();
 			goStraight = 1;
 		}
-		while (sonar.getcm() < 20) {
+		while (sonarDistance() < 20) {
+			Serial.println("turning");
 			car.arcadeDrive(0, -25);
 			goStraight = 0;
 		}
@@ -230,5 +237,14 @@ int hitTheWall() {
 		return 1;
 	} else {
 		return 0;
+	}
+}
+
+int sonarDistance() {
+	int a = sonar.getcm();
+	if (a < 1 || a > 21) {
+		return 21;
+	} else {
+		return a;
 	}
 }
